@@ -1,0 +1,50 @@
+import {Node,Vec2,Vec3,instantiate,UITransform,CircleCollider2D,Sprite,RigidBody2D,ERigidBody2DType} from 'cc'
+import { ICircleConfig } from './Circledata';
+import { PREFAB_PRECIRCLE_NAME,DIAMETER_CONVERSION_RADIUS } from './GameConst';
+import { circlePool } from './CirclePool';
+export class CircleFactory{
+
+    static createPreview(node:Node,config:ICircleConfig,position?:Vec3){
+
+        // const preNode = instantiate(node);
+        const preNode = circlePool.get();
+        preNode.name = String(PREFAB_PRECIRCLE_NAME);
+        CircleFactory.applyCommon(preNode,config);
+
+        const preRigid2D = preNode.getComponent(RigidBody2D);
+        preRigid2D.type = ERigidBody2DType.Kinematic;
+        preRigid2D.fixedRotation = false;
+        preRigid2D.angularVelocity = Math.PI/2;
+        preNode.setPosition(position ?? new Vec3(0,0,0));
+
+        return preNode;
+    }
+
+    static createFalling(node:Node,config:ICircleConfig,position:Vec3,velocity?:Vec2){
+
+        // const fallNode = instantiate(node);
+        const fallNode = circlePool.get();
+        CircleFactory.applyCommon(fallNode,config);
+        const fallRigidBody2D = fallNode.getComponent(RigidBody2D);
+         if (fallRigidBody2D) {
+            fallRigidBody2D.type = ERigidBody2DType.Dynamic;   
+            if (velocity instanceof Vec2) {
+                fallRigidBody2D.linearVelocity = velocity.clone();
+                fallRigidBody2D.angularVelocity = 0;
+            }
+        }
+        fallNode.setPosition(position);
+        return fallNode;
+    }
+
+    private static applyCommon(node:Node,circle:ICircleConfig){
+        const preUITransform = node.getComponent(UITransform);
+        preUITransform.setContentSize(circle.diameter,circle.diameter);
+
+        const preCircleCollider = node.getComponent(CircleCollider2D);
+        preCircleCollider.radius = circle.diameter * DIAMETER_CONVERSION_RADIUS;
+
+        const preSprite = node.getComponent(Sprite);
+        preSprite.color = circle.color;
+    }
+}
