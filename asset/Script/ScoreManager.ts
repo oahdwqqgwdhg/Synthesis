@@ -1,10 +1,12 @@
 import { sys } from 'cc';
+import { eventBus } from './EventBus';
+import { GameEvent } from './GameEvent';
 export class ScoreManager{
 
     private _scoreCurrent: number = 0;
     private _highScore: number = 0;
 
-    onScoreCharged:((current:number,high:number) => void) | null = null;
+    // onScoreCharged:((current:number,high:number) => void) | null = null;
 
     public init(){
         this._highScore = Number(sys.localStorage.getItem('highScore') ?? 0);
@@ -30,7 +32,8 @@ export class ScoreManager{
     }
 
     private notify(){
-        this.onScoreCharged?.(this._scoreCurrent,this._highScore);
+        // this.onScoreCharged?.(this._scoreCurrent,this._highScore);
+        eventBus.emit(GameEvent.SCORE_CHANGED,this._scoreCurrent,this._highScore);
     }
 }
 

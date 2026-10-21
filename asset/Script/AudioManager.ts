@@ -1,5 +1,7 @@
 import { _decorator, Component, AudioSource, AudioClip } from 'cc';
 const { ccclass, property } = _decorator;
+import { GameEvent } from './GameEvent';
+import { eventBus } from './EventBus';
 
 @ccclass('AudioManager')
 export class AudioManager extends Component{
@@ -19,6 +21,8 @@ export class AudioManager extends Component{
         if (!this._audioSource) {
             this._audioSource = this.addComponent(AudioSource);
         }
+        eventBus.on(GameEvent.AUDIO_START,this.playSpawn,this);
+        eventBus.on(GameEvent.AUDIO_START,this.playSynthesis,this);
     }
 
     start(){
@@ -50,7 +54,6 @@ export class AudioManager extends Component{
             if(this.gameoverClip){
                 this._audioSource.playOneShot(this.gameoverClip,2.0);
             }
-            
         }
     }
 

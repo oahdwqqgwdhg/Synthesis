@@ -1,19 +1,18 @@
-import {Vec2, Node, Color, Vec3, Prefab} from 'cc';
+import {Vec2, Node, Vec3, Prefab} from 'cc';
 import { getById,RANDOM_SPAWN_MAX_ID } from './Circledata';
 import { ICircleConfig } from './Circledata';
 import { CircleFactory } from './CircleFactory';
 import { DEFAULT_CIRCLE_NAME } from './GameConst'
 import { circlePool } from './CirclePool';
 import { AudioManager } from './AudioManager';
+import { eventBus } from './EventBus';
+import { GameEvent } from './GameEvent';
 class CircleSpawner{
     private prefab:Prefab | null =null;
     private cbox: Node | null= null;
     private lastCircleNode: Node | null= null;
     private Ccount: number = 1;
     private _pendingconfig: ICircleConfig | null =null;
-
-    onSpawnStart: (() => void) | null = null;
-    onSpawnEnd:(() => void) | null = null;
     
     init(prefab:Prefab,cbox:Node){
         if (!prefab || !cbox) {
@@ -56,15 +55,14 @@ class CircleSpawner{
             this.cbox.addChild(resultNode);
             this.Ccount++;
         }
-        this.onSpawnStart?.();
+        eventBus.emit(GameEvent.CLICK_START);
         if (this.lastCircleNode && this.lastCircleNode.isValid) {
             circlePool.put(this.lastCircleNode);
-            // this.lastCircleNode.destroy();
         }
         setTimeout(() => {
             if (!this.cbox || !this.cbox.isValid) return;
             this.spawnPreview();
-            this.onSpawnEnd?.();
+            eventBus.emit(GameEvent.CLICK_INHIBIT);
         }, 1000);
     }
 
@@ -91,12 +89,12 @@ class CircleSpawner{
         const name = DEFAULT_CIRCLE_NAME;
         for (let i = child.length - 1; i >= 0; i--) {
             if (child[i].name.startsWith(name)) {
-                // child[i].destroy();
                 circlePool.put(child[i]);
             }
         }
         this.Ccount = 1;
         this.lastCircleNode = null;
+        eventBus.offTarget(this);
     }
 }
 

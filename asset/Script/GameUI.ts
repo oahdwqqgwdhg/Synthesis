@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, Label, Button} from 'cc';
 const { ccclass, property } = _decorator;
 import { scoreManager } from './ScoreManager';
-import { gameManager } from './GameManager';
-import { SceneController } from './SceneController';
+import { eventBus } from './EventBus';
+import { GameEvent } from './GameEvent';
 @ccclass('GameUI')
 export class GameUI extends Component {
     @property({type:Label})
@@ -18,24 +18,17 @@ export class GameUI extends Component {
     private restartButton: Button | null = null;
 
     start() {
-        scoreManager.onScoreCharged = (curScore,highScore) => {
-           this.updateLabelText(curScore,highScore);
-        }
-
         const initScore = scoreManager.getCurrentScore();
         this.updateLabelText(initScore.current,initScore.highScore);
 
-        gameManager.onStateChanged = () => {
-            if(this.overPanel){
-                this.overPanel.active = true;
-            }
-        }
+        eventBus.on(GameEvent.SCORE_CHANGED,(curScore,highScore) => {this.updateLabelText(curScore,highScore);},this);
+        eventBus.on(GameEvent.GAME_OVER,() => {if(this.overPanel) this.overPanel.active = true;},this);
         if (this.overPanel) this.overPanel.active = false;
     }
 
     public onRestartClick() {
         if (this.overPanel) this.overPanel.active = false;
-        SceneController.instance?.resetGame();
+        eventBus.emit(GameEvent.GAMERE_RESTART);
     }
 
     public get gameoverPanel():Node{
@@ -48,8 +41,7 @@ export class GameUI extends Component {
     }
 
     onDestroy() {
-        scoreManager.onScoreCharged = null;
-        gameManager.onStateChanged = null;
+        eventBus.offTarget(this); 
     }
 }
 

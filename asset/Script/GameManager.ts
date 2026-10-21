@@ -1,3 +1,5 @@
+import { eventBus } from "./EventBus";
+import { GameEvent } from "./GameEvent";
 export enum GameState{
     Playing,
     GameOver,
@@ -6,8 +8,6 @@ export enum GameState{
 export class GameManager{
     private _state:GameState = GameState.Playing;
 
-    public onStateChanged:(() => void) | null = null;
-
     public get getState():GameState{
         return this._state;
     }
@@ -15,7 +15,7 @@ export class GameManager{
     public setOver(){
         if(this._state == GameState.GameOver) return;
         this._state = GameState.GameOver;
-        this.onStateChanged?.();
+        eventBus.emit(GameEvent.GAME_OVER);
     }
 
     public reset(){

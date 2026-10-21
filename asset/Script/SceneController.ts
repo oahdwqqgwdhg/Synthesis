@@ -5,6 +5,8 @@ import { FACTOR_HALF,PREFAB_PRECIRCLE_NAME } from './GameConst';
 import { scoreManager } from './ScoreManager';
 import { gameManager,GameState } from './GameManager';
 import { AudioManager } from './AudioManager';
+import { eventBus } from './EventBus';
+import { GameEvent } from './GameEvent';
 @ccclass('SceneController')
 export class SceneController extends Component {
 
@@ -34,10 +36,12 @@ export class SceneController extends Component {
         gameManager.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
-        circleSpawner.onSpawnStart = () => this.setInputEnabled(false);
-        circleSpawner.onSpawnEnd = () => this.setInputEnabled(true);
+        eventBus.on(GameEvent.CLICK_START,() => this.setInputEnabled(false),this);
+        eventBus.on(GameEvent.CLICK_INHIBIT,() => this.setInputEnabled(true),this);
+        eventBus.on(GameEvent.GAMERE_RESTART,this.resetGame,this);
+
         circleSpawner.spawnPreview();
-        this.setInputEnabled(true);
+        eventBus.emit(GameEvent.CLICK_INHIBIT);
     }
 
     get cboxNode(): Node | null {
@@ -52,10 +56,8 @@ export class SceneController extends Component {
                 AudioManager.instance?.playSpawn();
                 break;
             case 2:
-                // if (this.Cbox) this.cleanAllCircle(this.Cbox);
                 circleSpawner.reset();
                 scoreManager.reset();
-                // circlePool.clear();
                 console.log("清空成功");
                 break;
             default:
@@ -123,7 +125,6 @@ export class SceneController extends Component {
 
         if(_isfailed){
             this._overTime += time;
-            // console.log(this._overTime);
             if(this._overTime >=1.0){
                 console.log("游戏失败");
                 gameManager.setOver();
@@ -140,7 +141,7 @@ export class SceneController extends Component {
         circleSpawner.reset();
         scoreManager.reset();
         gameManager.reset();
-        this.setInputEnabled(true);
+        eventBus.emit(GameEvent.CLICK_INHIBIT);
     }
 }
 

@@ -1,4 +1,4 @@
-import {Node,Vec2,Vec3,instantiate,UITransform,CircleCollider2D,Sprite,RigidBody2D,ERigidBody2DType} from 'cc'
+import {Node,Vec2,Vec3,UITransform,CircleCollider2D,Sprite,RigidBody2D,ERigidBody2DType} from 'cc'
 import { ICircleConfig } from './Circledata';
 import { PREFAB_PRECIRCLE_NAME,DIAMETER_CONVERSION_RADIUS } from './GameConst';
 import { circlePool } from './CirclePool';
@@ -6,7 +6,6 @@ export class CircleFactory{
 
     static createPreview(node:Node,config:ICircleConfig,position?:Vec3){
 
-        // const preNode = instantiate(node);
         const preNode = circlePool.get();
         preNode.name = String(PREFAB_PRECIRCLE_NAME);
         CircleFactory.applyCommon(preNode,config);
@@ -22,7 +21,6 @@ export class CircleFactory{
 
     static createFalling(node:Node,config:ICircleConfig,position:Vec3,velocity?:Vec2){
 
-        // const fallNode = instantiate(node);
         const fallNode = circlePool.get();
         CircleFactory.applyCommon(fallNode,config);
         const fallRigidBody2D = fallNode.getComponent(RigidBody2D);
