@@ -7,6 +7,7 @@ import { gameManager,GameState } from './GameManager';
 import { AudioManager } from './AudioManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
+import { initCircleData } from './Circledata';
 @ccclass('SceneController')
 export class SceneController extends Component {
 
@@ -32,13 +33,18 @@ export class SceneController extends Component {
         PhysicsSystem2D.instance.enable = true;
     }
 
-    start() {
+    async start() {
         gameManager.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
         eventBus.on(GameEvent.CLICK_START,() => this.setInputEnabled(false),this);
         eventBus.on(GameEvent.CLICK_INHIBIT,() => this.setInputEnabled(true),this);
         eventBus.on(GameEvent.GAMERE_RESTART,this.resetGame,this);
+        try{
+            await initCircleData();
+        }catch(e){
+            console.log("[CircleData]配置加载失败:",e);
+        }
 
         circleSpawner.spawnPreview();
         eventBus.emit(GameEvent.CLICK_INHIBIT);
@@ -103,7 +109,7 @@ export class SceneController extends Component {
         if(SceneController.instance == this){
             SceneController.instance = null;
         }
-        this.setInputEnabled(false);
+        eventBus.offTarget(this);
     }
 
     update(time:number){

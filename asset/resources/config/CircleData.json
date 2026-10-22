@@ -1,0 +1,14 @@
+{
+  "circles": [
+    { "id": 1, "name": "OneCircle", "diameter": 40, "color": "#7FDBFF", "score": 10 },
+    { "id": 2, "name": "TwoCircle", "diameter": 50, "color": "#39CCCC", "score": 20 },
+    { "id": 3, "name": "ThreeCircle", "diameter": 60, "color": "#2ECC40", "score": 30 },
+    { "id": 4, "name": "FourCircle", "diameter": 70, "color": "#B5E61D", "score": 40 },
+    { "id": 5, "name": "FiveCircle", "diameter": 80, "color": "#FFDC00", "score": 50 },
+    { "id": 6, "name": "SixCircle", "diameter": 90, "color": "#FFA500", "score": 60 },
+    { "id": 7, "name": "SevenCircle", "diameter": 100, "color": "#FF851B", "score": 70 },
+    { "id": 8, "name": "EightCircle", "diameter": 110, "color": "#FF6B35", "score": 80 },
+    { "id": 9, "name": "NineCircle", "diameter": 120, "color": "#FF4136", "score": 90 },
+    { "id": 10, "name": "TenCircle", "diameter": 130, "color": "#E91E63", "score": 100 }
+  ]
+}
