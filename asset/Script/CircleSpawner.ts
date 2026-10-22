@@ -7,6 +7,7 @@ import { circlePool } from './CirclePool';
 import { AudioManager } from './AudioManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
+import { Logger } from './Logger';
 class CircleSpawner{
     private prefab:Prefab | null =null;
     private cbox: Node | null= null;

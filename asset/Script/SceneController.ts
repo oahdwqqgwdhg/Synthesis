@@ -3,11 +3,13 @@ const { ccclass, property } = _decorator;
 import { circleSpawner } from './CircleSpawner';
 import { FACTOR_HALF,PREFAB_PRECIRCLE_NAME } from './GameConst';
 import { scoreManager } from './ScoreManager';
-import { gameManager,GameState } from './GameManager';
+import { gameFSM,GameState } from './GameFSM';
 import { AudioManager } from './AudioManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
 import { initCircleData } from './Circledata';
+import { Logger } from './Logger';
+
 @ccclass('SceneController')
 export class SceneController extends Component {
 
@@ -34,7 +36,8 @@ export class SceneController extends Component {
     }
 
     async start() {
-        gameManager.reset();
+        Logger.setDebug(true);
+        gameFSM.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
         eventBus.on(GameEvent.CLICK_START,() => this.setInputEnabled(false),this);
@@ -43,7 +46,7 @@ export class SceneController extends Component {
         try{
             await initCircleData();
         }catch(e){
-            console.log("[CircleData]配置加载失败:",e);
+            Logger.log("[CircleData]配置加载失败:",e);
         }
 
         circleSpawner.spawnPreview();
@@ -64,7 +67,7 @@ export class SceneController extends Component {
             case 2:
                 circleSpawner.reset();
                 scoreManager.reset();
-                console.log("清空成功");
+                Logger.log("清空成功");
                 break;
             default:
                 break;
@@ -113,7 +116,7 @@ export class SceneController extends Component {
     }
 
     update(time:number){
-        if(gameManager.getState == GameState.GameOver) return;
+        if(gameFSM.State !== GameState.Playing) return;
         let _isfailed: boolean = false;
         if(this.redLine){
             const redline = this.redLine.getComponent(UITransform);
@@ -132,8 +135,8 @@ export class SceneController extends Component {
         if(_isfailed){
             this._overTime += time;
             if(this._overTime >=1.0){
-                console.log("游戏失败");
-                gameManager.setOver();
+                Logger.log("游戏失败");
+                gameFSM.stateChanged(GameState.GameOver);
                 this.setInputEnabled(false);
                 this._overTime = 0;
                 AudioManager.instance?.playGameOver();
@@ -146,7 +149,7 @@ export class SceneController extends Component {
     resetGame(){
         circleSpawner.reset();
         scoreManager.reset();
-        gameManager.reset();
+        gameFSM.reset();
         eventBus.emit(GameEvent.CLICK_INHIBIT);
     }
 }

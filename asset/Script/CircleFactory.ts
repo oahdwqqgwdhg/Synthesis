@@ -2,6 +2,7 @@ import {Node,Vec2,Vec3,UITransform,CircleCollider2D,Sprite,RigidBody2D,ERigidBod
 import { ICircleConfig } from './Circledata';
 import { PREFAB_PRECIRCLE_NAME,DIAMETER_CONVERSION_RADIUS } from './GameConst';
 import { circlePool } from './CirclePool';
+import { Logger } from './Logger';
 export class CircleFactory{
 
     static createPreview(node:Node,config:ICircleConfig,position?:Vec3){

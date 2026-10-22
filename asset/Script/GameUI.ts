@@ -3,6 +3,7 @@ const { ccclass, property } = _decorator;
 import { scoreManager } from './ScoreManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
+import { Logger } from './Logger';
 @ccclass('GameUI')
 export class GameUI extends Component {
     @property({type:Label})

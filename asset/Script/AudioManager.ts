@@ -2,6 +2,7 @@ import { _decorator, Component, AudioSource, AudioClip } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameEvent } from './GameEvent';
 import { eventBus } from './EventBus';
+import { Logger } from './Logger';
 
 @ccclass('AudioManager')
 export class AudioManager extends Component{

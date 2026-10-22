@@ -1,4 +1,5 @@
 import { Color,resources,JsonAsset } from 'cc';
+import { Logger } from './Logger';
 
 export interface ICircleConfig{
     id:number;
@@ -23,7 +24,7 @@ export function initCircleData():Promise<void>{
             }
 
             const json = asset.json as { circles:any[] };
-            console.log(`成功加载${json.circles.length}条配置`);
+            Logger.log(`成功加载${json.circles.length}条配置`);
             _circledata = json.circles.map(item => {
                 return {
                 id: item.id,

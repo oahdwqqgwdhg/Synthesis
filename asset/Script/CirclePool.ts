@@ -1,5 +1,6 @@
 import { Node, NodePool, Prefab, instantiate, RigidBody2D, Vec2 } from 'cc';
 import { ColliderController } from './ColliderController';
+import { Logger } from './Logger';
 export class CirclePool{
 
     private _pool:NodePool = new NodePool();
@@ -12,7 +13,7 @@ export class CirclePool{
 
     get(): Node | null{
         if(!this._prefab){
-            console.log("小球未找到");
+            Logger.log("小球未找到");
             return null;
         }
         let node: Node;

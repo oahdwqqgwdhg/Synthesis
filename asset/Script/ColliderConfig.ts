@@ -5,6 +5,7 @@ import { circleSpawner } from './CircleSpawner'
 import { ColliderController } from './ColliderController'
 import { scoreManager } from './ScoreManager';
 import { circlePool } from './CirclePool';
+import { Logger } from './Logger';
 
 // @ccclass('ColliderConfig')
 export class ColliderConfig{

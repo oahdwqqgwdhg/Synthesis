@@ -1,4 +1,5 @@
 import { GameEventKey } from "./GameEvent";
+import { Logger } from './Logger';
 type Handler = (...args:any[]) => void;
 interface Listener{
     handler?:Handler,

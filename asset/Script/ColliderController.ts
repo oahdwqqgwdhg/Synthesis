@@ -1,6 +1,7 @@
 import { _decorator, Component, Contact2DType, Event, Collider2D, Vec2, IPhysics2DContact } from 'cc';
 const { ccclass, property } = _decorator;
 import { colliderConfig } from './ColliderConfig';
+import { Logger } from './Logger';
 
 class CustomEvent extends Event{
     public msg: any = null;

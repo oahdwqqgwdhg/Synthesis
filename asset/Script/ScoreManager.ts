@@ -1,6 +1,7 @@
 import { sys } from 'cc';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
+import { Logger } from './Logger';
 export class ScoreManager{
 
     private _scoreCurrent: number = 0;
