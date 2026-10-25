@@ -1,5 +1,5 @@
 import { UITransform,Vec3,RigidBody2D,Vec2,tween} from 'cc';
-import { getNextCircle } from './Circledata';
+import { getNextCircle } from './CircleData';
 import { SceneController } from './SceneController'
 import { circleSpawner } from './CircleSpawner'
 import { ColliderController } from './ColliderController'
@@ -67,7 +67,7 @@ export class ColliderConfig{
 
             const cbox = SceneController.instance?.cboxNode;
             if (!cbox) {
-                console.error("Cbox 未绑定");
+                Logger.error("Cbox 未绑定");
                 return;
             }
             const cboxUI = cbox.getComponent(UITransform);

@@ -1,6 +1,5 @@
 import {Vec2, Node, Vec3, Prefab} from 'cc';
-import { getById,RANDOM_SPAWN_MAX_ID } from './Circledata';
-import { ICircleConfig } from './Circledata';
+import { getById,RANDOM_SPAWN_MAX_ID,ICircleConfig } from './CircleData';
 import { CircleFactory } from './CircleFactory';
 import { DEFAULT_CIRCLE_NAME } from './GameConst'
 import { circlePool } from './CirclePool';
@@ -8,6 +7,7 @@ import { AudioManager } from './AudioManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
 import { Logger } from './Logger';
+import { GameState } from './GameFSM';
 class CircleSpawner{
     private prefab:Prefab | null =null;
     private cbox: Node | null= null;
@@ -17,7 +17,7 @@ class CircleSpawner{
     
     init(prefab:Prefab,cbox:Node){
         if (!prefab || !cbox) {
-            console.error("CircleSpawner 未初始化");
+            Logger.error("CircleSpawner 未初始化");
             return;
         }   
         this.prefab = prefab;
@@ -36,22 +36,22 @@ class CircleSpawner{
         const preCircle = this.randomCircle();
         if(!preCircle) return;
         this._pendingconfig = preCircle;
-        const resultNode = CircleFactory.createPreview(this.prefab,preCircle);
+        const resultNode = CircleFactory.createPreview(preCircle);
         this.cbox.addChild(resultNode);        
         this.lastCircleNode = resultNode;
     }
 
     spawnFalling(position?: Vec3){
         if (!this.prefab) {
-            console.error("prefab 未绑定");
+            Logger.error("prefab 未绑定");
             return;
         }
         if (!this.cbox) {
-            console.error("cbox 未绑定，请在编辑器把 Canvas/cbox 拖到属性槽");
+            Logger.error("cbox 未绑定，请在编辑器把 Canvas/cbox 拖到属性槽");
             return;
         }
         if(this._pendingconfig){
-            const resultNode = CircleFactory.createFalling(this.prefab,this._pendingconfig,position);
+            const resultNode = CircleFactory.createFalling(this._pendingconfig,position);
             resultNode.name = DEFAULT_CIRCLE_NAME + this.Ccount;
             this.cbox.addChild(resultNode);
             this.Ccount++;
@@ -70,15 +70,15 @@ class CircleSpawner{
     spawnMerged(position: Vec3, result: ICircleConfig, velocity?: Vec2) {
         AudioManager.instance?.playSynthesis();
         if (!this.prefab) {
-            console.error("prefab 未绑定");
+            Logger.error("prefab 未绑定");
             return;
         }
         if (!this.cbox) {
-            console.error("cbox 未绑定，请在编辑器把 Canvas/cbox 拖到属性槽");
+            Logger.error("cbox 未绑定，请在编辑器把 Canvas/cbox 拖到属性槽");
             return;
         }
         
-        const resultNode = CircleFactory.createFalling(this.prefab,result,position,velocity);
+        const resultNode = CircleFactory.createFalling(result,position,velocity);
         resultNode.name = DEFAULT_CIRCLE_NAME + this.Ccount;
         this.cbox.addChild(resultNode);
         this.Ccount++;

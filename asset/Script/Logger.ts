@@ -18,9 +18,7 @@ export class Logger{
     }
 
     public static error(...args:any[]){
-        if(this._isDebug){
-            console.error("[Game]",...args);
-        }
+        console.error("[Game]",...args);
     }
 }
 

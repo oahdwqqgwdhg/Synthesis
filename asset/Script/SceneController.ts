@@ -7,8 +7,9 @@ import { gameFSM,GameState } from './GameFSM';
 import { AudioManager } from './AudioManager';
 import { eventBus } from './EventBus';
 import { GameEvent } from './GameEvent';
-import { initCircleData } from './Circledata';
+import { initCircleData } from './CircleData';
 import { Logger } from './Logger';
+import { httpClient } from './HttpClient';
 
 @ccclass('SceneController')
 export class SceneController extends Component {
@@ -37,6 +38,10 @@ export class SceneController extends Component {
 
     async start() {
         Logger.setDebug(true);
+        const login = await httpClient.login('admin','123123') ?? null;
+        if(login){
+            await httpClient.getData();
+        }
         gameFSM.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
@@ -85,7 +90,7 @@ export class SceneController extends Component {
 
     clickPosition(data: EventMouse) {
         if (!this.Cbox) {
-            console.error("Cbox 未绑定，请在编辑器把 Canvas/Cbox 拖到属性槽");
+            Logger.error("Cbox 未绑定，请在编辑器把 Canvas/Cbox 拖到属性槽");
             return new Vec3(0, 0, 0);
         }
         const mouseposition = data.getUILocation();

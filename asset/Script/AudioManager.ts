@@ -22,8 +22,6 @@ export class AudioManager extends Component{
         if (!this._audioSource) {
             this._audioSource = this.addComponent(AudioSource);
         }
-        eventBus.on(GameEvent.AUDIO_START,this.playSpawn,this);
-        eventBus.on(GameEvent.AUDIO_START,this.playSynthesis,this);
     }
 
     start(){
