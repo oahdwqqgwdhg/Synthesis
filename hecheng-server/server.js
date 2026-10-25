@@ -46,5 +46,28 @@ app.listen(3000,()=>{
     console.log('后端服务器已启动: http://localhost:3000');
 })
 
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({port: 8080});
+
+wss.on('connection',(ws) =>{
+    console.log("有一个客户连接上了WebSocket！");
+
+    ws.on('message',(message)=>{
+        console.log("收到客户端消息：",message.toString());
+
+        wss.clients.forEach((client) => {
+            if(client.readyState === WebSocket.OPEN){
+                client.send(`服务器收到了${message}`);
+            }
+        });
+    });
+
+    
+    ws.on('close',() => {
+        console.log('一个客户端断开了');
+    });
+});
+
 
 
