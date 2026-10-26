@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message PlayerAction{
+    string playerId = 1;
+    string action = 2;
+    int32 score = 3;
+    float x = 4;
+}

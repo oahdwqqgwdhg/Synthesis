@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const protobuf = require('protobufjs');
 const app = express();
 
 app.use(cors());  //允许前端跨域请求----跨域(CORS)
@@ -49,18 +50,34 @@ app.listen(3000,()=>{
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({port: 8080});
+let PlayerAction;
+protobuf.load("message.proto",(err,root) => {
+    if(err) throw err;
+    PlayerAction = root.lookupType("PlayerAction");
+})
 
 wss.on('connection',(ws) =>{
     console.log("有一个客户连接上了WebSocket！");
 
-    ws.on('message',(message)=>{
-        console.log("收到客户端消息：",message.toString());
+    ws.on('message',(buffer)=>{
 
-        wss.clients.forEach((client) => {
-            if(client.readyState === WebSocket.OPEN){
-                client.send(`服务器收到了${message}`);
-            }
-        });
+        if(!PlayerAction) return;
+        try{
+            // console.log("收到客户端消息：",buffer.toString());
+            const decode = PlayerAction.decode(buffer);
+            console.log("收到并解析玩家动作：",decode);
+
+            const outProtoBuf = PlayerAction.encode(decode).finish();
+
+            wss.clients.forEach((client) => {
+                if(client.readyState === WebSocket.OPEN){
+                    client.send(outProtoBuf);
+                }
+            });
+        }catch(e){
+            console.log("解析失败",e);
+        }
+        
     });
 
     
