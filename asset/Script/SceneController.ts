@@ -10,6 +10,8 @@ import { GameEvent } from './GameEvent';
 import { initCircleData } from './CircleData';
 import { Logger } from './Logger';
 import { httpClient } from './HttpClient';
+import { wsClient } from './WsClient';
+import { protoManager } from './ProtoManager';
 
 @ccclass('SceneController')
 export class SceneController extends Component {
@@ -56,6 +58,8 @@ export class SceneController extends Component {
 
         circleSpawner.spawnPreview();
         eventBus.emit(GameEvent.CLICK_INHIBIT);
+        await protoManager.init();
+        wsClient.connect();
     }
 
     get cboxNode(): Node | null {
@@ -68,11 +72,15 @@ export class SceneController extends Component {
             case 0:
                 this.clickstartfall(event);
                 AudioManager.instance?.playSpawn();
+
+                const pos = this.clickPosition(event);
+                wsClient.sendAction("player_001","drop",scoreManager.getCurrentScore().current,pos.x)
                 break;
             case 2:
                 circleSpawner.reset();
                 scoreManager.reset();
                 Logger.log("清空成功");
+                // wsClient.sendAction("play1，点击清空按钮");
                 break;
             default:
                 break;
