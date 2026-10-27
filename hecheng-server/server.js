@@ -59,8 +59,17 @@ protobuf.load("message.proto",(err,root) => {
 wss.on('connection',(ws) =>{
     console.log("有一个客户连接上了WebSocket！");
 
-    ws.on('message',(buffer)=>{
+    ws.isAlive = true;
 
+    ws.on('pong',() => {
+        ws.isAlive = true;
+    });
+
+    ws.on('message',(buffer)=>{
+        if(buffer.toString() === 'ping'){
+            ws.send('pong');
+            return;
+        }
         if(!PlayerAction) return;
         try{
             // console.log("收到客户端消息：",buffer.toString());
@@ -85,6 +94,17 @@ wss.on('connection',(ws) =>{
         console.log('一个客户端断开了');
     });
 });
+
+setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if(ws.isAlive === false){
+            console.log('发现死连接，主动断开');
+            return ws.terminate();
+        }
+        ws.isAlive = false;
+        ws.ping();
+    });
+},5000 );
 
 
 
