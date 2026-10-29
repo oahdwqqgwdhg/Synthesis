@@ -56,14 +56,14 @@ class CircleSpawner{
             this.cbox.addChild(resultNode);
             this.Ccount++;
         }
-        eventBus.emit(GameEvent.CLICK_START);
+        eventBus.emit(GameEvent.CLICK_INHIBIT);////关闭
         if (this.lastCircleNode && this.lastCircleNode.isValid) {
             circlePool.put(this.lastCircleNode);
         }
         setTimeout(() => {
             if (!this.cbox || !this.cbox.isValid) return;
             this.spawnPreview();
-            eventBus.emit(GameEvent.CLICK_INHIBIT);
+            eventBus.emit(GameEvent.CLICK_START);
         }, 1000);
     }
 

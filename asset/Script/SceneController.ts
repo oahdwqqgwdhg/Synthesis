@@ -25,6 +25,8 @@ export class SceneController extends Component {
     @property({ type: Node})
     private redLine: Node | null = null;
 
+   
+
     static instance: SceneController | null = null;
 
     private _overTime: number = 0;
@@ -47,8 +49,8 @@ export class SceneController extends Component {
         gameFSM.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
-        eventBus.on(GameEvent.CLICK_START,() => this.setInputEnabled(false),this);
-        eventBus.on(GameEvent.CLICK_INHIBIT,() => this.setInputEnabled(true),this);
+        eventBus.on(GameEvent.CLICK_START,() => this.setInputEnabled(true),this);
+        eventBus.on(GameEvent.CLICK_INHIBIT,() => this.setInputEnabled(false),this);
         eventBus.on(GameEvent.GAMERE_RESTART,this.resetGame,this);
         try{
             await initCircleData();
@@ -57,7 +59,7 @@ export class SceneController extends Component {
         }
 
         circleSpawner.spawnPreview();
-        eventBus.emit(GameEvent.CLICK_INHIBIT);
+        eventBus.emit(GameEvent.CLICK_START);
         await protoManager.init();
         wsClient.connect();
     }
@@ -159,11 +161,14 @@ export class SceneController extends Component {
         }
     }
 
+
     resetGame(){
-        circleSpawner.reset();
         scoreManager.reset();
         gameFSM.reset();
-        eventBus.emit(GameEvent.CLICK_INHIBIT);
+        this.scheduleOnce(() => {
+            circleSpawner.reset();
+            eventBus.emit(GameEvent.CLICK_START);
+        },0);
     }
 }
 

@@ -11,21 +11,41 @@ app.get('/',(req,res) => {
     res.send('服务器运行正常');
 });
 
+const palyerRankDB = new Map();
+app.post('/register',(req,res)=>{
+    const {name,account,password} = req.body;
+    if(palyerRankDB.has(account)){
+        res.json({
+            code:400,
+            msg:"账号已经存在"
+        });
+        return;
+    }
+    palyerRankDB.set(account,{name,password});
+    res.json({
+        code:200,
+        msg:"注册成功",
+    });
+})
 app.post('/login',(req,res) => {
-    const { username, password } = req.body;
-    console.log(`收到登录请求：${username},${password}`);
-
-    if(username && password){
+    const { account, password } = req.body;
+    console.log(`收到登录请求：${account},${password}`);
+    const act = palyerRankDB.get(account);
+    if(!act){
+        res.json({ code: 400,msg: "账号不存在"});
+        return;
+    }
+    if(act.password === password){
         res.json({
             code:200,
             msg:"登陆成功",
             data:{
-                token:"1234567890asd",
+                token:`player_${account}`,
                 highScore: 9999
             }
         });
     }else{
-        res.json({ code: 400,msg: "账号密码不能为空"})
+        res.json({ code: 401,msg: "密码不正确"})
     }
 });
 
