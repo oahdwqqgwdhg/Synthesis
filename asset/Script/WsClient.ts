@@ -1,5 +1,7 @@
 import { Logger } from "./Logger";
 import { protoManager } from "./ProtoManager";
+import { eventBus } from "./EventBus";
+import { GameEvent } from "./GameEvent";
 class WsClient{
     private ws: WebSocket | null = null;
     private url: string = 'ws://localhost:8080';
@@ -23,7 +25,17 @@ class WsClient{
             const data = event.data;
 
             if(data === 'pong') return;
-            if(typeof data === 'string') return;
+            if(typeof data === 'string'){
+                try{
+                    const json = JSON.parse(data);
+                    if(json.type === 'leaderboard'){
+                        Logger.log("获取排名信息：",json);
+                        eventBus.emit(GameEvent.LEADERBOARD_UPDATED,json.data);
+                    }
+                }catch(e){
+                    return;
+                }
+            }
 
             try{
                 const uint8Array = new Uint8Array(data);
@@ -69,6 +81,13 @@ class WsClient{
             Logger.log("发送二进制数据：",payload);
         }
     }   
+
+    public sendScore(account:string,name:string,score:number){
+        if(!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+        const msg = {type:'updateScore',account,name,score};
+        this.ws.send(JSON.stringify(msg));
+        Logger.log("已同步分数到服务器",score);
+    }
 
     private startHeartbeat(){
         this.stopHeartbeat();

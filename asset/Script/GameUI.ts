@@ -1,4 +1,4 @@
-import { _decorator, Component, ScorllView, Node, Label, Button} from 'cc';
+import { _decorator, Component, instantiate, Node, Label, Prefab} from 'cc';
 const { ccclass, property } = _decorator;
 import { scoreManager } from './ScoreManager';
 import { eventBus } from './EventBus';
@@ -19,11 +19,11 @@ export class GameUI extends Component {
      @property({ type: Node })
     private RankList: Node | null = null;
 
-    @property({ type: Button})
-    private restartButton: Button | null = null;
+    @property({ type: Prefab})
+    private itemRankPrefab: Prefab | null = null;
 
-    @property({ type: Button})
-    private openRanklistbutton: Button | null = null;
+    @property({ type: Node})
+    private contentNode: Node | null = null;
 
     start() {
         const initScore = scoreManager.getCurrentScore();
@@ -31,6 +31,7 @@ export class GameUI extends Component {
 
         eventBus.on(GameEvent.SCORE_CHANGED,(curScore,highScore) => {this.updateLabelText(curScore,highScore);},this);
         eventBus.on(GameEvent.GAME_OVER,() => {if(this.overPanel) this.overPanel.active = true;},this);
+        eventBus.on(GameEvent.LEADERBOARD_UPDATED,this.updateLeaderbord,this)
         if (this.overPanel) this.overPanel.active = false;
     }
 
@@ -43,11 +44,11 @@ export class GameUI extends Component {
         return this.overPanel;
     }
 
-    openRankList(){
+    async openRankList(){
         eventBus.emit(GameEvent.CLICK_INHIBIT);
         this.RankList.active = true;
-
-        httpClient.getData();
+        const list = await httpClient.getLeaderboard();
+        this.updateLeaderbord(list);
     }
 
     closeRankList(){
@@ -60,6 +61,26 @@ export class GameUI extends Component {
     updateLabelText(curScore:number,highScore:number){
         if(this.curScore){ this.curScore.string = '分数：' + curScore.toString();}
         if(this.highScore){ this.highScore.string = '最高：' + highScore.toString();}
+    }
+
+    updateLeaderbord(data:{name:string,score:number}[]){
+        if(!this.itemRankPrefab || !this.contentNode) return;
+        this.contentNode.removeAllChildren();
+        Logger.log("获取的排行榜列表打印：",data);
+        data.forEach((player,index) => {
+            const itemNode = instantiate(this.itemRankPrefab);
+
+            const rankLabel = itemNode.getChildByName('ranking')?.getComponent(Label);
+            const nameLabel = itemNode.getChildByName('name')?.getComponent(Label);
+            const scoreLabel = itemNode.getChildByName('score')?.getComponent(Label);
+
+            if(rankLabel) rankLabel.string = `${index + 1}`;
+            if(nameLabel) nameLabel.string = player.name;
+            if(scoreLabel) scoreLabel.string = `${player.score}`;
+
+            this.contentNode.addChild(itemNode);
+            Logger.log(`第${index}个，玩家数据为：${player.name}`);
+        });
     }
 
     onDestroy() {

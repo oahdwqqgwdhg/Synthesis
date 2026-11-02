@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, RigidBody2D, Input, input, Vec3, EventMouse, UITransform, PhysicsSystem2D, Prefab, } from 'cc';
+import { _decorator, Component, Node, RigidBody2D, Input, EventTouch, input, Vec3, EventMouse, UITransform, PhysicsSystem2D, Prefab, } from 'cc';
 const { ccclass, property } = _decorator;
 import { circleSpawner } from './CircleSpawner';
 import { FACTOR_HALF,PREFAB_PRECIRCLE_NAME } from './GameConst';
@@ -12,6 +12,7 @@ import { Logger } from './Logger';
 import { httpClient } from './HttpClient';
 import { wsClient } from './WsClient';
 import { protoManager } from './ProtoManager';
+import { playerData } from './PlayerData';
 
 @ccclass('SceneController')
 export class SceneController extends Component {
@@ -42,10 +43,10 @@ export class SceneController extends Component {
 
     async start() {
         Logger.setDebug(true);
-        const login = await httpClient.login('admin','123123') ?? null;
-        if(login){
-            await httpClient.getData();
-        }
+        // const login = await httpClient.login('admin','123123') ?? null;
+        // if(login){
+        //     await httpClient.getData();
+        // }
         gameFSM.reset();
         circleSpawner.init(this.CircleNode,this.Cbox);
         scoreManager.init();
@@ -89,11 +90,34 @@ export class SceneController extends Component {
         }
     }
 
+    onTouch(event: EventTouch) {
+        if (!this.Cbox) {
+            Logger.error("Cbox 未绑定！");
+            return;
+        }
+        const touchPos = event.getUILocation();
+        const uiTransform = this.Cbox.getComponent(UITransform);
+        const localPos = uiTransform.convertToNodeSpaceAR(
+            new Vec3(touchPos.x, touchPos.y, 0)
+        );
+        const halfW = uiTransform.contentSize.width * FACTOR_HALF;
+        const x = Math.max(-halfW, Math.min(halfW, localPos.x));
+        this.scheduleOnce(() => {
+            if (!this.node.isValid) return;
+            circleSpawner.spawnFalling(new Vec3(x, 0, 0));
+        }, 0);
+
+        AudioManager.instance?.playSpawn();
+        wsClient.sendAction("player_001", "drop", scoreManager.getCurrentScore().current, x);
+    }
+
     setInputEnabled(enabled: boolean) {
         if (enabled) {
             input.on(Input.EventType.MOUSE_UP, this.onMouse, this);
+            input.on(Input.EventType.TOUCH_START, this.onTouch, this);
         } else {
             input.off(Input.EventType.MOUSE_UP, this.onMouse, this);
+            input.off(Input.EventType.TOUCH_START, this.onTouch, this);
         }
     }
 
@@ -155,6 +179,11 @@ export class SceneController extends Component {
                 this.setInputEnabled(false);
                 this._overTime = 0;
                 AudioManager.instance?.playGameOver();
+                const data = playerData.getData();
+                const account = data.accouunt || 'admin';
+                const name = data.name || '玩家';
+                const score = scoreManager.getCurrentScore().current;
+                wsClient.sendScore(account,name,score);
             }
         }else{
             this._overTime = 0;

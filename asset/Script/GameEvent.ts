@@ -13,6 +13,7 @@ export const GameEvent = {
     GAMERE_RESTART:'game_restart',
 
     SCORE_CHANGED:'score_changed',
+    LEADERBOARD_UPDATED:'leaderboard_updated',
 
 }as const;
 
